@@ -97,10 +97,13 @@ def Game(Root):
     for que, ans in zip(GameQuestions, GameAnswers):
         que.position = (que.position[0] + 190000//que.w, que.position[1])
         # ans.position = (ans.position[0] + 50000//ans.w, ans.position[1])
+    pTime = 0
     while True:
         success, frame = Camera.read()
         if not success:
             break
+        cTime = time.time()
+        fps = int(1/(cTime - pTime))
         frame = cv.flip(frame, 1)
         hands = Detector.findHands(frame, flipType=False, draw=False)
         distances = [get_distance(Answer, Question) for Answer, Question in zip(GameAnswers, GameQuestions)]
@@ -129,8 +132,10 @@ def Game(Root):
         for Q, A in zip(GameQuestions, GameAnswers):
            A.show(frame),  Q.show(frame)
 
+        cv.putText(frame, f'FPS: {fps}', (1140, 35), cv.FONT_HERSHEY_COMPLEX, 1, (30, 31, 143), thickness=1)
         cv.imshow('FG', frame)
         cv.waitKey(1)
+        pTime = cTime
         if slow_now:
             time.sleep(0.5)
             GameQuestions.pop(pop_num)
